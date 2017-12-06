@@ -33,8 +33,9 @@ class DibiMapperGenerator
 	 */
 	public function getFileName(): string
 	{
-		$path = str_replace('.php', 'DibiMapper.php', $this->entityReflection->getFileName());
-		return str_replace('/Model/', '/Mapping/Dibi/', $path);
+		$path = dirname($this->entityReflection->getFileName(), 2) . '/Mapping';
+		$fileName = basename($this->entityReflection->getFileName(), '.php') . 'DibiMapper.php';
+		return $path . '/' . $fileName;
 	}
 
 	/**

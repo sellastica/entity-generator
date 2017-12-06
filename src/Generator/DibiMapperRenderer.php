@@ -30,7 +30,7 @@ class DibiMapperRenderer
 	 */
 	public function render()
 	{
-		$namespace = Strings::before($this->entityReflection->getNamespaceName(), '\\', -1) . '\Mapping\Dibi';
+		$namespace = Strings::before($this->entityReflection->getNamespaceName(), '\\', -1) . '\Mapping';
 		$renderer = (new PhpClassRenderer($this->entityReflection->getShortName() . 'DibiMapper', ['DibiMapper']))
 			->phpBeginning()
 			->namespace($namespace)

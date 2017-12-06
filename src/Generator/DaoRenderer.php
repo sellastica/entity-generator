@@ -37,7 +37,7 @@ class DaoRenderer
 			->import(Strings::removeFromBeginning($this->entityReflection->getName(), '\\'))
 			->import(Strings::removeFromBeginning($this->entityReflection->getName(), '\\') . 'Builder')
 			->import('Sellastica\Entity\Entity\EntityCollection')
-			->import(str_replace('\Mapping', '\Mapping\Dibi', $namespace)
+			->import(str_replace('\Mapping', '\Mapping', $namespace)
 				. '\\' . $this->entityReflection->shortName . 'DibiMapper');
 
 		$renderer

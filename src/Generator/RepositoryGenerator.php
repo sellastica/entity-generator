@@ -28,8 +28,9 @@ class RepositoryGenerator
 	 */
 	public function getFileName(): string
 	{
-		$path = str_replace('.php', 'Repository.php', $this->entityReflection->getFileName());
-		return str_replace('/Model/', '/Mapping/', $path);
+		$path = dirname($this->entityReflection->getFileName(), 2) . '/Mapping';
+		$fileName = basename($this->entityReflection->getFileName(), '.php') . 'Repository.php';
+		return $path . '/' . $fileName;
 	}
 
 	/**

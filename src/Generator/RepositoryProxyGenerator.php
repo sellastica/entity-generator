@@ -28,8 +28,9 @@ class RepositoryProxyGenerator
 	 */
 	public function getFileName(): string
 	{
-		$path = str_replace('.php', 'RepositoryProxy.php', $this->entityReflection->getFileName());
-		return str_replace('/Model/', '/Mapping/', $path);
+		$path = dirname($this->entityReflection->getFileName(), 2) . '/Mapping';
+		$fileName = basename($this->entityReflection->getFileName(), '.php') . 'RepositoryProxy.php';
+		return $path . '/' . $fileName;
 	}
 
 	/**
