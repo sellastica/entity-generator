@@ -139,46 +139,48 @@ class Generator
 		}
 
 		$dump = [];
-		//dibi mapper
-		if ($this->mappers) {
-			$generator = new DibiMapperGenerator($entityClass, $tableName);
-			$generator->generate();
-			$dump[] = $generator->getFileName();
-		}
-
-		//dao
-		if ($this->daos) {
-			$generator = new DaoGenerator($entityClass);
-			$generator->generate();
-			$dump[] = $generator->getFileName();
-		}
+		//$classShortName = (new \Sellastica\Reflection\ReflectionClass($entityClass))->getShortName();
+		//$classShortNameLower = strtolower($classShortName);
 
 		//repository
 		if ($this->repositories) {
 			$generator = new RepositoryGenerator($entityClass);
 			$generator->generate();
-			$dump[] = $generator->getFileName();
-		}
-
-		//repository interface
-		if ($this->repositoryInterfaces) {
-			$generator = new IRepositoryGenerator($entityClass);
-			$generator->generate();
-			$dump[] = $generator->getFileName();
+			$dump[] = $generator->getNeonDefinition();
 		}
 
 		//repository proxy
 		if ($this->repositoryProxies) {
 			$generator = new RepositoryProxyGenerator($entityClass);
 			$generator->generate();
-			$dump[] = $generator->getFileName();
+			$dump[] = $generator->getNeonDefinition();
+		}
+
+		//dao
+		if ($this->daos) {
+			$generator = new DaoGenerator($entityClass);
+			$generator->generate();
+			$dump[] = $generator->getNeonDefinition();
+		}
+
+		//dibi mapper
+		if ($this->mappers) {
+			$generator = new DibiMapperGenerator($entityClass, $tableName);
+			$generator->generate();
+			$dump[] = $generator->getNeonDefinition();
 		}
 
 		//entity factory
 		if ($this->entityFactories) {
 			$generator = new EntityFactoryGenerator($entityClass);
 			$generator->generate();
-			$dump[] = $generator->getFileName();
+			$dump[] = $generator->getNeonDefinition();
+		}
+
+		//repository interface
+		if ($this->repositoryInterfaces) {
+			$generator = new IRepositoryGenerator($entityClass);
+			$generator->generate();
 		}
 
 		//builder
@@ -186,7 +188,6 @@ class Generator
 			$generator = new BuilderGenerator($entityClass);
 			if ($generator->shouldGenerate()) {
 				$generator->generate();
-				$dump[] = $generator->getFileName();
 			}
 		}
 
@@ -195,7 +196,6 @@ class Generator
 			$generator = new ModifierGenerator($entityClass);
 			if ($generator->shouldGenerate()) {
 				$generator->generate();
-				$dump[] = $generator->getFileName();
 			}
 		}
 
@@ -203,10 +203,20 @@ class Generator
 		if ($this->collections) {
 			$generator = new EntityCollectionGenerator($entityClass);
 			$generator->generate();
-			$dump[] = $generator->getFileName();
 		}
 
-		return $dump;
+		return implode("\n", $dump);
+	}
+
+	/**
+	 * @param string $class
+	 * @param bool $lower
+	 * @return string
+	 */
+	private function getClassShortName(string $class, bool $lower = true): string
+	{
+		$shortName = (new \Sellastica\Reflection\ReflectionClass($class))->getShortName();
+		return $lower ? Nette\Utils\Strings::firstLower($shortName) : $shortName;
 	}
 
 	/**

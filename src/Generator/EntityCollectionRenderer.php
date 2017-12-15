@@ -3,7 +3,7 @@ namespace Sellastica\EntityGenerator\Generator;
 
 use Sellastica\PhpGenerator\PhpClassRenderer;
 
-class EntityCollectionRenderer
+class EntityCollectionRenderer implements IRenderer
 {
 	/** @var \ReflectionClass */
 	private $entityReflection;
@@ -20,7 +20,15 @@ class EntityCollectionRenderer
 	/**
 	 * @return string
 	 */
-	private function getClassShortName(): string
+	public function getNamespace(): string
+	{
+		return $this->entityReflection->getNamespaceName();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
 	{
 		return $this->entityReflection->getShortName() . 'Collection';
 	}
@@ -28,11 +36,11 @@ class EntityCollectionRenderer
 	/**
 	 * @return string
 	 */
-	public function render()
+	public function render(): string
 	{
-		$renderer = (new PhpClassRenderer($this->getClassShortName(), ['EntityCollection']))
+		$renderer = (new PhpClassRenderer($this->getClassName(), ['EntityCollection']))
 			->phpBeginning()
-			->namespace($this->entityReflection->getNamespaceName());
+			->namespace($this->getNamespace());
 
 		if ($this->entityReflection->getNamespaceName() !== 'Core\Domain\Model') {
 			$renderer->import('Sellastica\Entity\Entity\EntityCollection');
@@ -40,8 +48,8 @@ class EntityCollectionRenderer
 
 		$renderer->annotation()
 			->property('$items', $this->entityReflection->getShortName() . '[]')
-			->method('add($entity)', $this->getClassShortName())
-			->method('remove($key)', $this->getClassShortName())
+			->method('add($entity)', $this->getClassName())
+			->method('remove($key)', $this->getClassName())
 			->method('getEntity(int $entityId, $default = null)', $this->entityReflection->getShortName() . '|mixed')
 			->method('getBy(string $property, $value, $default = null)', $this->entityReflection->getShortName() . '|mixed');
 

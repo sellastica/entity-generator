@@ -4,7 +4,7 @@ namespace Sellastica\EntityGenerator\Generator;
 use Nette\Utils\Strings;
 use Sellastica\PhpGenerator\PhpClassRenderer;
 
-class RepositoryProxyRenderer
+class RepositoryProxyRenderer implements IRenderer
 {
 	/** @var \ReflectionClass */
 	private $entityReflection;
@@ -23,23 +23,36 @@ class RepositoryProxyRenderer
 	/**
 	 * @return string
 	 */
-	public function render()
+	public function getNamespace(): string
 	{
-		$namespace = Strings::before($this->entityReflection->getNamespaceName(), '\\', -1) . '\Mapping';
-		$entityShortName = $this->entityReflection->getShortName();
-		$interface = 'I' . $entityShortName . 'Repository';
-		
-		$renderer = (new PhpClassRenderer($entityShortName . 'RepositoryProxy', ['RepositoryProxy'], [$interface]))
+		return Strings::before($this->entityReflection->getNamespaceName(), '\\', -1) . '\Mapping';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->entityReflection->getShortName() . 'RepositoryProxy';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function render(): string
+	{
+		$interface = 'I' . $this->entityReflection->getShortName() . 'Repository';
+		$renderer = (new PhpClassRenderer($this->getClassName(), ['RepositoryProxy'], [$interface]))
 			->phpBeginning()
-			->namespace($namespace)
+			->namespace($this->getNamespace())
 			->import('Sellastica\Entity\Mapping\RepositoryProxy')
-			->import($this->entityReflection->getNamespaceName() . '\\I' . $entityShortName . 'Repository')
+			->import($this->entityReflection->getNamespaceName() . '\\I' . $this->entityReflection->getShortName() . 'Repository')
 			->import($this->entityReflection->getName());
 
 		$renderer
 			->annotation()
-			->method('getRepository()', $entityShortName . 'Repository')
-			->see($entityShortName);
+			->method('getRepository()', $this->entityReflection->getShortName() . 'Repository')
+			->see($this->entityReflection->getShortName());
 
 		return $renderer->render();
 	}

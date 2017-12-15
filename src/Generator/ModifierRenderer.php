@@ -5,7 +5,7 @@ use Sellastica\PhpGenerator\PhpClassRenderer;
 use Sellastica\PhpGenerator\PhpMethodParameterRenderer;
 use Sellastica\Reflection\ReflectionClass;
 
-class ModifierRenderer
+class ModifierRenderer implements IRenderer
 {
 	/** @var ReflectionClass */
 	private $entityReflection;
@@ -23,11 +23,27 @@ class ModifierRenderer
 	/**
 	 * @return string
 	 */
-	public function render()
+	public function getNamespace(): string
 	{
-		$renderer = (new PhpClassRenderer($this->entityReflection->getShortName() . 'Modifier', [], ['IModifier']))
+		return $this->entityReflection->getNamespaceName();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->entityReflection->getShortName() . 'Modifier';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function render(): string
+	{
+		$renderer = (new PhpClassRenderer($this->getClassName(), [], ['IModifier']))
 			->phpBeginning()
-			->namespace($this->entityReflection->getNamespaceName())
+			->namespace($this->getNamespace())
 			->import('Sellastica\Entity\IModifier')
 			->import('Sellastica\Entity\TModifier');
 

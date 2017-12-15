@@ -1,12 +1,14 @@
 <?php
 namespace Sellastica\EntityGenerator\Generator;
 
-class DibiMapperGenerator
+class DibiMapperGenerator implements IGenerator
 {
 	/** @var \ReflectionClass */
 	private $entityReflection;
 	/** @var string */
 	private $tableName;
+	/** @var string */
+	private $className;
 
 	/**
 	 * @param string $entityClass
@@ -18,14 +20,14 @@ class DibiMapperGenerator
 		$this->tableName = $tableName;
 	}
 
-	public function generate()
+	public function generate(): void
 	{
-		$data = (new DibiMapperRenderer(
+		$renderer = new DibiMapperRenderer(
 			$this->entityReflection,
 			$this->tableName
-		))->render();
-
-		$this->save($data);
+		);
+		$this->className = $renderer->getNamespace() . '\\' . $renderer->getClassName();
+		$this->save($renderer->render());
 	}
 
 	/**
@@ -36,6 +38,26 @@ class DibiMapperGenerator
 		$path = dirname($this->entityReflection->getFileName(), 2) . '/Mapping';
 		$fileName = basename($this->entityReflection->getFileName(), '.php') . 'DibiMapper.php';
 		return $path . '/' . $fileName;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->className;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getNeonDefinition(): string
+	{
+		return "\t"
+			. \Nette\Utils\Strings::firstLower($this->entityReflection->getShortName())
+			. 'Mapper: '
+			. $this->getClassName();
+
 	}
 
 	/**

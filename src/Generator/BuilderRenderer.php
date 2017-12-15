@@ -5,7 +5,7 @@ use Sellastica\PhpGenerator\PhpClassRenderer;
 use Sellastica\PhpGenerator\PhpMethodParameterRenderer;
 use Sellastica\Reflection\ReflectionClass;
 
-class BuilderRenderer
+class BuilderRenderer implements IRenderer
 {
 	/** @var ReflectionClass */
 	private $entityReflection;
@@ -24,14 +24,30 @@ class BuilderRenderer
 	/**
 	 * @return string
 	 */
-	public function render()
+	public function getNamespace(): string
+	{
+		return $this->entityReflection->getNamespaceName();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->entityReflection->getShortName() . 'Builder';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function render(): string
 	{
 		$requiredProperties = $this->entityReflection->filterProperties('required');
 		$optionalProperties = $this->entityReflection->filterProperties('optional');
 
-		$renderer = (new PhpClassRenderer($this->entityReflection->getShortName() . 'Builder', [], ['IBuilder']))
+		$renderer = (new PhpClassRenderer($this->getClassName(), [], ['IBuilder']))
 			->phpBeginning()
-			->namespace($this->entityReflection->getNamespaceName())
+			->namespace($this->getNamespace())
 			->import('Sellastica\Entity\IBuilder')
 			->import('Sellastica\Entity\TBuilder');
 

@@ -3,10 +3,12 @@ namespace Sellastica\EntityGenerator\Generator;
 
 use Sellastica\Reflection\ReflectionClass;
 
-class BuilderGenerator
+class BuilderGenerator implements IGenerator
 {
 	/** @var ReflectionClass */
 	private $entityReflection;
+	/** @var string */
+	private $className;
 
 
 	/**
@@ -17,14 +19,23 @@ class BuilderGenerator
 		$this->entityReflection = new ReflectionClass($entityClass);
 	}
 
-	public function generate()
+	public function generate(): void
 	{
 		if (!$this->shouldGenerate()) {
 			throw new \Exception(sprintf('%s should not be generated'));
 		}
 
-		$data = (new BuilderRenderer($this->entityReflection))->render();
-		$this->save($data);
+		$renderer = new BuilderRenderer($this->entityReflection);
+		$this->className = $renderer->getNamespace() . '\\' . $renderer->getClassName();
+		$this->save($renderer->render());
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->className;
 	}
 
 	/**

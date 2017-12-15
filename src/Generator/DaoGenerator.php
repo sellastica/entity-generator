@@ -3,10 +3,12 @@ namespace Sellastica\EntityGenerator\Generator;
 
 use Sellastica\Reflection\ReflectionClass;
 
-class DaoGenerator
+class DaoGenerator implements IGenerator
 {
 	/** @var ReflectionClass */
 	private $entityReflection;
+	/** @var string */
+	private $className;
 
 
 	/**
@@ -17,10 +19,28 @@ class DaoGenerator
 		$this->entityReflection = new ReflectionClass($entityClass);
 	}
 
-	public function generate()
+	public function generate(): void
 	{
-		$data = (new DaoRenderer($this->entityReflection))->render();
-		$this->save($data);
+		$renderer = new DaoRenderer($this->entityReflection);
+		$this->className = $renderer->getNamespace() . '\\' . $renderer->getClassName();
+		$this->save($renderer->render());
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->className;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getNeonDefinition(): string
+	{
+		$entityShortName = \Nette\Utils\Strings::firstLower($this->entityReflection->getShortName());
+		return "\t{$entityShortName}Dao: {$this->getClassName()}(@{$entityShortName}Mapper, @{$entityShortName}Factory)";
 	}
 
 	/**

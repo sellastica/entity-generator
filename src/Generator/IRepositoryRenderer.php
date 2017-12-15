@@ -3,7 +3,7 @@ namespace Sellastica\EntityGenerator\Generator;
 
 use Sellastica\PhpGenerator\PhpClassRenderer;
 
-class IRepositoryRenderer
+class IRepositoryRenderer implements IRenderer
 {
 	/** @var \ReflectionClass */
 	private $entityReflection;
@@ -21,16 +21,31 @@ class IRepositoryRenderer
 	/**
 	 * @return string
 	 */
-	public function render()
+	public function getNamespace(): string
+	{
+		return $this->entityReflection->getNamespaceName();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return 'I' . $this->entityReflection->getShortName() . 'Repository';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function render(): string
 	{
 		$entityShortName = $this->entityReflection->getShortName();
-		$interface = 'I' . $entityShortName . 'Repository';
 		$entityCollection = $this->entityReflection->getShortName() . 'Collection';
 
-		$renderer = (new PhpClassRenderer($interface, ['IRepository']))
+		$renderer = (new PhpClassRenderer($this->getClassName(), ['IRepository']))
 			->classType('interface')
 			->phpBeginning()
-			->namespace($this->entityReflection->getNamespaceName())
+			->namespace($this->getNamespace())
 			->import('Sellastica\Entity\Configuration')
 			->import('Sellastica\Entity\Mapping\IRepository');
 

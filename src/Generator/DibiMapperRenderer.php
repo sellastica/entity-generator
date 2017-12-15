@@ -4,7 +4,7 @@ namespace Sellastica\EntityGenerator\Generator;
 use Nette\Utils\Strings;
 use Sellastica\PhpGenerator\PhpClassRenderer;
 
-class DibiMapperRenderer
+class DibiMapperRenderer implements IRenderer
 {
 	/** @var \ReflectionClass */
 	private $entityReflection;
@@ -28,12 +28,27 @@ class DibiMapperRenderer
 	/**
 	 * @return string
 	 */
-	public function render()
+	public function getNamespace(): string
 	{
-		$namespace = Strings::before($this->entityReflection->getNamespaceName(), '\\', -1) . '\Mapping';
-		$renderer = (new PhpClassRenderer($this->entityReflection->getShortName() . 'DibiMapper', ['DibiMapper']))
+		return Strings::before($this->entityReflection->getNamespaceName(), '\\', -1) . '\Mapping';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->entityReflection->getShortName() . 'DibiMapper';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function render(): string
+	{
+		$renderer = (new PhpClassRenderer($this->getClassName(), ['DibiMapper']))
 			->phpBeginning()
-			->namespace($namespace)
+			->namespace($this->getNamespace())
 			->import('Sellastica\Entity\Mapping\DibiMapper')
 			->import($this->entityReflection->getName());
 

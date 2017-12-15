@@ -1,10 +1,12 @@
 <?php
 namespace Sellastica\EntityGenerator\Generator;
 
-class RepositoryGenerator
+class RepositoryGenerator implements IGenerator
 {
 	/** @var \ReflectionClass */
 	private $entityReflection;
+	/** @var string */
+	private $className;
 
 
 	/**
@@ -15,12 +17,32 @@ class RepositoryGenerator
 		$this->entityReflection = new \ReflectionClass($entityClass);
 	}
 
-	public function generate()
+	public function generate(): void
 	{
-		$data = (new RepositoryRenderer(
+		$renderer = new RepositoryRenderer(
 			$this->entityReflection
-		))->render();
-		$this->save($data);
+		);
+		$this->className = $renderer->getNamespace() . '\\' . $renderer->getClassName();
+		$this->save($renderer->render());
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->className;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getNeonDefinition(): string
+	{
+		$entityShortName = \Nette\Utils\Strings::firstLower($this->entityReflection->getShortName());
+		return "\t{$entityShortName}Repository:" . PHP_EOL
+			. "\t\t" . "class: {$this->getClassName()}(@{$entityShortName}Dao, @{$entityShortName}Factory)" . PHP_EOL
+			. "\t\t" . "autowired: no";
 	}
 
 	/**

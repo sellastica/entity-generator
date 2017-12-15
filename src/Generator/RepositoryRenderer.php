@@ -4,7 +4,7 @@ namespace Sellastica\EntityGenerator\Generator;
 use Nette\Utils\Strings;
 use Sellastica\PhpGenerator\PhpClassRenderer;
 
-class RepositoryRenderer
+class RepositoryRenderer implements IRenderer
 {
 	/** @var \ReflectionClass */
 	private $entityReflection;
@@ -23,14 +23,29 @@ class RepositoryRenderer
 	/**
 	 * @return string
 	 */
-	public function render()
+	public function getNamespace(): string
 	{
-		$namespace = Strings::before($this->entityReflection->getNamespaceName(), '\\', -1) . '\Mapping';
+		return Strings::before($this->entityReflection->getNamespaceName(), '\\', -1) . '\Mapping';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->entityReflection->getShortName() . 'Repository';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function render(): string
+	{
 		$interface = 'I' . $this->entityReflection->getShortName() . 'Repository';
 
-		$renderer = (new PhpClassRenderer($this->entityReflection->getShortName() . 'Repository', ['Repository'], [$interface]))
+		$renderer = (new PhpClassRenderer($this->getClassName(), ['Repository'], [$interface]))
 			->phpBeginning()
-			->namespace($namespace)
+			->namespace($this->getNamespace())
 			->import('Sellastica\Entity\Mapping\Repository')
 			->import($this->entityReflection->getName())
 			->import($this->entityReflection->getNamespaceName() . '\\I' . $this->entityReflection->getShortName() . 'Repository');

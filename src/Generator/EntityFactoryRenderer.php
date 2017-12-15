@@ -5,7 +5,7 @@ use Sellastica\PhpGenerator\PhpClassRenderer;
 use Sellastica\PhpGenerator\PhpMethodParameterRenderer;
 use Sellastica\Reflection\ReflectionClass;
 
-class EntityFactoryRenderer
+class EntityFactoryRenderer implements IRenderer
 {
 	/** @var ReflectionClass */
 	private $entityReflection;
@@ -24,11 +24,27 @@ class EntityFactoryRenderer
 	/**
 	 * @return string
 	 */
-	public function render()
+	public function getNamespace(): string
 	{
-		$renderer = (new PhpClassRenderer($this->entityReflection->getShortName() . 'Factory', ['EntityFactory']))
+		return $this->entityReflection->getNamespaceName();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->entityReflection->getShortName() . 'Factory';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function render(): string
+	{
+		$renderer = (new PhpClassRenderer($this->getClassName(), ['EntityFactory']))
 			->phpBeginning()
-			->namespace($this->entityReflection->getNamespaceName())
+			->namespace($this->getNamespace())
 			->import('Sellastica\Entity\IBuilder')
 			->import('Sellastica\Entity\Entity\IEntity')
 			->import('Sellastica\Entity\Entity\EntityFactory');

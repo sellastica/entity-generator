@@ -1,10 +1,12 @@
 <?php
 namespace Sellastica\EntityGenerator\Generator;
 
-class EntityCollectionGenerator
+class EntityCollectionGenerator implements IGenerator
 {
 	/** @var \ReflectionClass */
 	private $entityReflection;
+	/** @var string */
+	private $className;
 
 
 	/**
@@ -15,10 +17,19 @@ class EntityCollectionGenerator
 		$this->entityReflection = new \ReflectionClass($entityClass);
 	}
 
-	public function generate()
+	public function generate(): void
 	{
-		$data = (new EntityCollectionRenderer($this->entityReflection))->render();
-		$this->save($data);
+		$renderer = new EntityCollectionRenderer($this->entityReflection);
+		$this->className = $renderer->getNamespace() . '\\' . $renderer->getClassName();
+		$this->save($renderer->render());
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->className;
 	}
 
 	/**

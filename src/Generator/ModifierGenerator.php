@@ -4,10 +4,12 @@ namespace Sellastica\EntityGenerator\Generator;
 use Nette;
 use Sellastica\Reflection\ReflectionClass;
 
-class ModifierGenerator
+class ModifierGenerator implements IGenerator
 {
 	/** @var ReflectionClass */
 	private $entityReflection;
+	/** @var string */
+	private $className;
 
 
 	/**
@@ -18,14 +20,23 @@ class ModifierGenerator
 		$this->entityReflection = new ReflectionClass($entityClass);
 	}
 
-	public function generate()
+	public function generate(): void
 	{
 		if (!$this->shouldGenerate()) {
 			throw new \Exception(sprintf('%s should not be generated'));
 		}
 
-		$data = (new ModifierRenderer($this->entityReflection))->render();
-		$this->save($data);
+		$renderer = new ModifierRenderer($this->entityReflection);
+		$this->className = $renderer->getNamespace() . '\\' . $renderer->getClassName();
+		$this->save($renderer->render());
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->className;
 	}
 
 	/**

@@ -3,10 +3,12 @@ namespace Sellastica\EntityGenerator\Generator;
 
 use Sellastica\EntityGenerator\Generator;
 
-class RepositoryProxyGenerator
+class RepositoryProxyGenerator implements IGenerator
 {
 	/** @var \ReflectionClass */
 	private $entityReflection;
+	/** @var string */
+	private $className;
 
 
 	/**
@@ -17,10 +19,32 @@ class RepositoryProxyGenerator
 		$this->entityReflection = new \ReflectionClass($entityClass);
 	}
 
-	public function generate()
+	public function generate(): void
 	{
-		$data = (new Generator\RepositoryProxyRenderer($this->entityReflection))->render();
-		$this->save($data);
+		$renderer = new Generator\RepositoryProxyRenderer($this->entityReflection);
+		$this->className = $renderer->getNamespace() . '\\' . $renderer->getClassName();
+		$this->save($renderer->render());
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->className;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getNeonDefinition(): string
+	{
+		return "\t"
+			. \Nette\Utils\Strings::firstLower(
+				(new \Sellastica\Reflection\ReflectionClass($this->getClassName()))->getShortName())
+			. ': '
+			. $this->getClassName();
+
 	}
 
 	/**

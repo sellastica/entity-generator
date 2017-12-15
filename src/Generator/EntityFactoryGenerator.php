@@ -3,10 +3,12 @@ namespace Sellastica\EntityGenerator\Generator;
 
 use Sellastica\Reflection\ReflectionClass;
 
-class EntityFactoryGenerator
+class EntityFactoryGenerator implements IGenerator
 {
 	/** @var ReflectionClass */
 	private $entityReflection;
+	/** @var string */
+	private $className;
 
 
 	/**
@@ -17,10 +19,31 @@ class EntityFactoryGenerator
 		$this->entityReflection = new ReflectionClass($entityClass);
 	}
 
-	public function generate()
+	public function generate(): void
 	{
-		$data = (new EntityFactoryRenderer($this->entityReflection))->render();
-		$this->save($data);
+		$renderer = new EntityFactoryRenderer($this->entityReflection);
+		$this->className = $renderer->getNamespace() . '\\' . $renderer->getClassName();
+		$this->save($renderer->render());
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->className;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getNeonDefinition(): string
+	{
+		return "\t"
+			. \Nette\Utils\Strings::firstLower(
+				(new \Sellastica\Reflection\ReflectionClass($this->getClassName()))->getShortName())
+			. ': '
+			. $this->getClassName();
 	}
 
 	/**

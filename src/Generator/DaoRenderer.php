@@ -6,7 +6,7 @@ use Sellastica\PhpGenerator\PhpMethodParameterRenderer;
 use Sellastica\Reflection\ReflectionClass;
 use Sellastica\Utils\Strings;
 
-class DaoRenderer
+class DaoRenderer implements IRenderer
 {
 	/** @var ReflectionClass */
 	private $entityReflection;
@@ -25,20 +25,33 @@ class DaoRenderer
 	/**
 	 * @return string
 	 */
-	public function render()
+	public function getNamespace(): string
 	{
-		$namespace = Strings::before($this->entityReflection->getNamespaceName(), '\\', -1) . '\Mapping';
+		return Strings::before($this->entityReflection->getNamespaceName(), '\\', -1) . '\Mapping';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->entityReflection->getShortName() . 'Dao';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function render(): string
+	{
 		$builder = $this->entityReflection->getShortName() . 'Builder';
-		$renderer = (new PhpClassRenderer($this->entityReflection->getShortName() . 'Dao', ['Dao']))
+		$renderer = (new PhpClassRenderer($this->getClassName(), ['Dao']))
 			->phpBeginning()
-			->namespace($namespace)
+			->namespace($this->getNamespace())
 			->import('Sellastica\Entity\IBuilder')
 			->import('Sellastica\Entity\Mapping\Dao')
 			->import(Strings::removeFromBeginning($this->entityReflection->getName(), '\\'))
 			->import(Strings::removeFromBeginning($this->entityReflection->getName(), '\\') . 'Builder')
-			->import('Sellastica\Entity\Entity\EntityCollection')
-			->import(str_replace('\Mapping', '\Mapping', $namespace)
-				. '\\' . $this->entityReflection->shortName . 'DibiMapper');
+			->import('Sellastica\Entity\Entity\EntityCollection');
 
 		$renderer
 			->annotation()

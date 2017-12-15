@@ -1,10 +1,13 @@
 <?php
 namespace Sellastica\EntityGenerator\Generator;
 
-class IRepositoryGenerator
+class IRepositoryGenerator implements IGenerator
 {
 	/** @var \ReflectionClass */
 	private $entityReflection;
+	/** @var string */
+	private $className;
+
 
 	/**
 	 * @param string $entityClass
@@ -14,10 +17,19 @@ class IRepositoryGenerator
 		$this->entityReflection = new \ReflectionClass($entityClass);
 	}
 
-	public function generate()
+	public function generate(): void
 	{
-		$data = (new IRepositoryRenderer($this->entityReflection))->render();
-		$this->save($data);
+		$renderer = new IRepositoryRenderer($this->entityReflection);
+		$this->className = $renderer->getNamespace() . '\\' . $renderer->getClassName();
+		$this->save($renderer->render());
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getClassName(): string
+	{
+		return $this->className;
 	}
 
 	/**
