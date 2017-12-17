@@ -142,6 +142,12 @@ class Generator
 		//$classShortName = (new \Sellastica\Reflection\ReflectionClass($entityClass))->getShortName();
 		//$classShortNameLower = strtolower($classShortName);
 
+		//repository interface
+		if ($this->repositoryInterfaces) {
+			$generator = new IRepositoryGenerator($entityClass);
+			$generator->generate();
+		}
+
 		//repository
 		if ($this->repositories) {
 			$generator = new RepositoryGenerator($entityClass);
@@ -152,6 +158,13 @@ class Generator
 		//repository proxy
 		if ($this->repositoryProxies) {
 			$generator = new RepositoryProxyGenerator($entityClass);
+			$generator->generate();
+			$dump[] = $generator->getNeonDefinition();
+		}
+
+		//entity factory
+		if ($this->entityFactories) {
+			$generator = new EntityFactoryGenerator($entityClass);
 			$generator->generate();
 			$dump[] = $generator->getNeonDefinition();
 		}
@@ -168,19 +181,6 @@ class Generator
 			$generator = new DibiMapperGenerator($entityClass, $tableName);
 			$generator->generate();
 			$dump[] = $generator->getNeonDefinition();
-		}
-
-		//entity factory
-		if ($this->entityFactories) {
-			$generator = new EntityFactoryGenerator($entityClass);
-			$generator->generate();
-			$dump[] = $generator->getNeonDefinition();
-		}
-
-		//repository interface
-		if ($this->repositoryInterfaces) {
-			$generator = new IRepositoryGenerator($entityClass);
-			$generator->generate();
 		}
 
 		//builder
