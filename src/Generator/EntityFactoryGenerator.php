@@ -39,11 +39,8 @@ class EntityFactoryGenerator implements IGenerator
 	 */
 	public function getNeonDefinition(): string
 	{
-		return "\t"
-			. \Nette\Utils\Strings::firstLower(
-				(new \Sellastica\Reflection\ReflectionClass($this->getClassName()))->getShortName())
-			. ': '
-			. $this->getClassName();
+		$entityShortName = \Nette\Utils\Strings::firstLower($this->entityReflection->getShortName());
+		return "\t{$entityShortName}Factory: {$this->getClassName()}";
 	}
 
 	/**
