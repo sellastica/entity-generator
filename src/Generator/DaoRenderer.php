@@ -79,7 +79,7 @@ class DaoRenderer implements IRenderer
 		$collection = $this->entityReflection->getShortName() . 'Collection';
 		$renderer->import($this->entityReflection->getNamespaceName() . "\\$collection");
 		$renderer
-			->createMethod('getEmptyCollection', 'protected')
+			->createMethod('getEmptyCollection')
 			->return('EntityCollection')
 			->addBody("return new $collection;")
 			->createAnnotation()
