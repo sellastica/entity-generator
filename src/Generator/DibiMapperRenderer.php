@@ -58,7 +58,7 @@ class DibiMapperRenderer implements IRenderer
 				->return('string')
 				->addBody(sprintf("return '%s';", $this->tableName));
 			$method->createParameter('databaseName')
-				->defaultValue(null);
+				->defaultValue(false);
 			$method->createAnnotation()
 				->param('databaseName', 'bool')
 				->return('string');
