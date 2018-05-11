@@ -104,7 +104,9 @@ class BuilderRenderer implements IRenderer
 				$getter
 					->createAnnotation()
 					->return($property->renderTypes());
-				if (!$property->isNullable()) {
+
+				if (!$property->isNullable()
+					&& stripos($property->renderTypes(), 'mixed') === false) {
 					$getter->return($property->getType());
 				}
 
