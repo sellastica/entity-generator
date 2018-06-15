@@ -126,12 +126,19 @@ class BuilderRenderer implements IRenderer
 			->return('bool')
 			->createAnnotation()
 			->return('bool');
+
 		//build method
-		$renderer->createMethod('build')
-			->addBody('return new ' . $this->entityReflection->getShortName() . '(' . '$this' . ');')
-			->return($this->entityReflection->getShortName())
+		$method = $renderer->createMethod('build');
+		if (in_array(\Sellastica\MongoDB\Entity\IMongoObject::class, $this->entityReflection->getInterfaceNames())) {
+			$method->addBody('return new ' . $this->entityReflection->getShortName() . '(' . '$this->toArray()' . ');');
+		} else {
+			$method->addBody('return new ' . $this->entityReflection->getShortName() . '(' . '$this' . ');');
+		}
+
+		$method->return($this->entityReflection->getShortName())
 			->createAnnotation()
 			->return($this->entityReflection->getShortName());
+
 		//static create method
 		$method = $renderer->createMethod('create')
 			->static()
