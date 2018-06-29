@@ -43,20 +43,15 @@ class DaoRenderer implements IRenderer
 	 */
 	public function render(): string
 	{
-		$builder = $this->entityReflection->getShortName() . 'Builder';
-		$renderer = (new PhpClassRenderer($this->getClassName(), ['Dao']))
+		$builder = '\\' . $this->entityReflection->getName() . 'Builder';
+		$renderer = (new PhpClassRenderer($this->getClassName(), ['\\' . $this->getExtendingClass()]))
 			->phpBeginning()
-			->namespace($this->getNamespace())
-			->import('Sellastica\Entity\IBuilder')
-			->import('Sellastica\Entity\Mapping\Dao')
-			->import(Strings::removeFromBeginning($this->entityReflection->getName(), '\\'))
-			->import(Strings::removeFromBeginning($this->entityReflection->getName(), '\\') . 'Builder')
-			->import('Sellastica\Entity\Entity\EntityCollection');
+			->namespace($this->getNamespace());
 
 		$renderer
 			->annotation()
-			->see($this->entityReflection->getShortName())
-			->property('$mapper', $this->entityReflection->shortName . 'DibiMapper');
+			->see('\\' . $this->entityReflection->getName())
+			->property('$mapper', $this->getMapperClass());
 
 		//getBuilder method
 		$properties = [];
@@ -66,7 +61,7 @@ class DaoRenderer implements IRenderer
 
 		$renderer
 			->createMethod('getBuilder', 'protected')
-			->return('IBuilder')
+			->return('\\' . \Sellastica\Entity\IBuilder::class)
 			->addParameter(PhpMethodParameterRenderer::fromName('data'))
 			->addParameter(PhpMethodParameterRenderer::fromName('first')->defaultValue(null))
 			->addParameter(PhpMethodParameterRenderer::fromName('second')->defaultValue(null))
@@ -75,16 +70,56 @@ class DaoRenderer implements IRenderer
 			->createAnnotation()
 			->inheritDoc();
 
+		//mongo completeEntity method
+		if ($this->isMongoDescendant()) {
+			$entityParamName = lcfirst($this->entityReflection->getShortName());
+			$renderer
+				->createMethod('completeEntity', 'protected')
+				->return('void')
+				->addParameter(PhpMethodParameterRenderer::fromName($entityParamName)->type('\\' . \Sellastica\Entity\Entity\IEntity::class))
+				->addParameter(PhpMethodParameterRenderer::fromName('data')->type('\\' . \Sellastica\MongoDB\Model\BSONDocument::class))
+				->createAnnotation()
+				->param($entityParamName, '\\' . \Sellastica\Entity\Entity\IEntity::class . '|\\' . $this->entityReflection->getName())
+				->param('data', '\\' . \Sellastica\MongoDB\Model\BSONDocument::class);
+		}
+
 		//getEmptyCollection method
-		$collection = $this->entityReflection->getShortName() . 'Collection';
-		$renderer->import($this->entityReflection->getNamespaceName() . "\\$collection");
+		$collection = '\\' . $this->entityReflection->getName() . 'Collection';
 		$renderer
 			->createMethod('getEmptyCollection')
-			->return('EntityCollection')
+			->return('\\' . \Sellastica\Entity\Entity\EntityCollection::class)
 			->addBody("return new $collection;")
 			->createAnnotation()
-			->return("EntityCollection|$collection");
+			->return($collection);
 
 		return $renderer->render();
+	}
+
+	/**
+	 * @return bool
+	 */
+	private function isMongoDescendant(): bool
+	{
+		return in_array(\Sellastica\MongoDB\Entity\IMongoObject::class, $this->entityReflection->getInterfaceNames());
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getExtendingClass(): string
+	{
+		return $this->isMongoDescendant()
+			? \Sellastica\MongoDB\Mapping\MongoDao::class
+			: \Sellastica\Entity\Mapping\Dao::class;
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getMapperClass(): string
+	{
+		return $this->isMongoDescendant()
+			? $this->entityReflection->getShortName() . 'Mapper'
+			: $this->entityReflection->getShortName() . 'DibiMapper';
 	}
 }

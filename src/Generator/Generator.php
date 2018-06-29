@@ -178,7 +178,7 @@ class Generator
 
 		//dibi mapper
 		if ($this->mappers) {
-			$generator = new DibiMapperGenerator($entityClass, $tableName);
+			$generator = new MapperGenerator($entityClass, $tableName);
 			$generator->generate();
 			$dump[] = $generator->getNeonDefinition();
 		}

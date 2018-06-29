@@ -1,7 +1,7 @@
 <?php
 namespace Sellastica\EntityGenerator\Generator;
 
-class DibiMapperGenerator implements IGenerator
+class MapperGenerator implements IGenerator
 {
 	/** @var \ReflectionClass */
 	private $entityReflection;
@@ -9,6 +9,7 @@ class DibiMapperGenerator implements IGenerator
 	private $tableName;
 	/** @var string */
 	private $className;
+
 
 	/**
 	 * @param string $entityClass
@@ -22,7 +23,7 @@ class DibiMapperGenerator implements IGenerator
 
 	public function generate(): void
 	{
-		$renderer = new DibiMapperRenderer(
+		$renderer = new MapperRenderer(
 			$this->entityReflection,
 			$this->tableName
 		);
@@ -36,7 +37,10 @@ class DibiMapperGenerator implements IGenerator
 	public function getFileName(): string
 	{
 		$path = dirname($this->entityReflection->getFileName(), 2) . '/Mapping';
-		$fileName = basename($this->entityReflection->getFileName(), '.php') . 'DibiMapper.php';
+		$suffix = in_array(\Sellastica\MongoDB\Entity\IMongoObject::class, $this->entityReflection->getInterfaceNames())
+			? 'Mapper'
+			: 'DibiMapper';
+		$fileName = basename($this->entityReflection->getFileName(), '.php') . $suffix . '.php';
 		return $path . '/' . $fileName;
 	}
 
