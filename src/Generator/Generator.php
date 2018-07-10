@@ -129,18 +129,24 @@ class Generator
 	/**
 	 * @param string $entityClass
 	 * @param string|null $tableName
+	 * @param string|null $servicePrefix
 	 * @return array
 	 * @throws \Exception
 	 */
-	public function generate(string $entityClass, string $tableName = null)
+	public function generate(
+		string $entityClass,
+		string $tableName = null,
+		string $servicePrefix = null
+	)
 	{
 		if (!class_exists($entityClass)) {
 			throw new \Exception(sprintf('Class %s does not exist', $entityClass));
 		}
 
 		$dump = [];
-		//$classShortName = (new \Sellastica\Reflection\ReflectionClass($entityClass))->getShortName();
-		//$classShortNameLower = strtolower($classShortName);
+		if (!$servicePrefix) {
+			$servicePrefix = lcfirst((new \Sellastica\Reflection\ReflectionClass($entityClass))->getShortName());
+		}
 
 		//repository interface
 		if ($this->repositoryInterfaces) {
@@ -152,35 +158,35 @@ class Generator
 		if ($this->repositories) {
 			$generator = new RepositoryGenerator($entityClass);
 			$generator->generate();
-			$dump[] = $generator->getNeonDefinition();
+			$dump[] = $generator->getNeonDefinition($servicePrefix);
 		}
 
 		//repository proxy
 		if ($this->repositoryProxies) {
 			$generator = new RepositoryProxyGenerator($entityClass);
 			$generator->generate();
-			$dump[] = $generator->getNeonDefinition();
+			$dump[] = $generator->getNeonDefinition($servicePrefix);
 		}
 
 		//entity factory
 		if ($this->entityFactories) {
 			$generator = new EntityFactoryGenerator($entityClass);
 			$generator->generate();
-			$dump[] = $generator->getNeonDefinition();
+			$dump[] = $generator->getNeonDefinition($servicePrefix);
 		}
 
 		//dao
 		if ($this->daos) {
 			$generator = new DaoGenerator($entityClass);
 			$generator->generate();
-			$dump[] = $generator->getNeonDefinition();
+			$dump[] = $generator->getNeonDefinition($servicePrefix);
 		}
 
 		//dibi mapper
 		if ($this->mappers) {
 			$generator = new MapperGenerator($entityClass, $tableName);
 			$generator->generate();
-			$dump[] = $generator->getNeonDefinition();
+			$dump[] = $generator->getNeonDefinition($servicePrefix);
 		}
 
 		//builder

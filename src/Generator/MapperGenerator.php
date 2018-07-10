@@ -53,12 +53,13 @@ class MapperGenerator implements IGenerator
 	}
 
 	/**
+	 * @param string|null $prefix
 	 * @return string
 	 */
-	public function getNeonDefinition(): string
+	public function getNeonDefinition(string $prefix = null): string
 	{
 		return "\t"
-			. \Nette\Utils\Strings::firstLower($this->entityReflection->getShortName())
+			. ($prefix ?? \Nette\Utils\Strings::firstLower($this->entityReflection->getShortName()))
 			. 'Mapper: '
 			. $this->getClassName();
 

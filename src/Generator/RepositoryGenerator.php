@@ -35,13 +35,17 @@ class RepositoryGenerator implements IGenerator
 	}
 
 	/**
+	 * @param string|null $prefix
 	 * @return string
 	 */
-	public function getNeonDefinition(): string
+	public function getNeonDefinition(string $prefix = null): string
 	{
-		$entityShortName = \Nette\Utils\Strings::firstLower($this->entityReflection->getShortName());
-		return "\t{$entityShortName}Repository:" . PHP_EOL
-			. "\t\t" . "class: {$this->getClassName()}(@{$entityShortName}Dao, @{$entityShortName}Factory)" . PHP_EOL
+		if (!$prefix) {
+			$prefix = \Nette\Utils\Strings::firstLower($this->entityReflection->getShortName());
+		}
+
+		return "\t{$prefix}Repository:" . PHP_EOL
+			. "\t\t" . "class: {$this->getClassName()}(@{$prefix}Dao, @{$prefix}Factory)" . PHP_EOL
 			. "\t\t" . "autowired: no";
 	}
 

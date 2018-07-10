@@ -35,12 +35,16 @@ class EntityFactoryGenerator implements IGenerator
 	}
 
 	/**
+	 * @param string|null $prefix
 	 * @return string
 	 */
-	public function getNeonDefinition(): string
+	public function getNeonDefinition(string $prefix = null): string
 	{
-		$entityShortName = \Nette\Utils\Strings::firstLower($this->entityReflection->getShortName());
-		return "\t{$entityShortName}Factory: {$this->getClassName()}";
+		if (!$prefix) {
+			$prefix = \Nette\Utils\Strings::firstLower($this->entityReflection->getShortName());
+		}
+
+		return "\t{$prefix}Factory: {$this->getClassName()}";
 	}
 
 	/**

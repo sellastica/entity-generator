@@ -35,12 +35,16 @@ class DaoGenerator implements IGenerator
 	}
 
 	/**
+	 * @param string|null $prefix
 	 * @return string
 	 */
-	public function getNeonDefinition(): string
+	public function getNeonDefinition(string $prefix = null): string
 	{
-		$entityShortName = \Nette\Utils\Strings::firstLower($this->entityReflection->getShortName());
-		return "\t{$entityShortName}Dao: {$this->getClassName()}(@{$entityShortName}Mapper, @{$entityShortName}Factory)";
+		if (!$prefix) {
+			$prefix = \Nette\Utils\Strings::firstLower($this->entityReflection->getShortName());
+		}
+
+		return "\t{$prefix}Dao: {$this->getClassName()}(@{$prefix}Mapper, @{$prefix}Factory)";
 	}
 
 	/**
